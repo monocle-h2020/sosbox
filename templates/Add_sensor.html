@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+.centerMe { 
+    text-align: center;
+}
+.lowerMe {
+    margin-top: 40px;
+}
+#sensorTable {
+    color: black;
+    font-size: 16px;
+    font-family: monospace;
+    font-weight: normal;
+}
+#MainTable {
+    color: black;
+    font-size: 16px;
+    font-family: monospace;
+    font-weight: normal;
+} 
+table {
+    display: block;   
+}
+tr {
+    display: block;
+    border: solid 2px lightgray;
+    margin-bottom: -2px;
+
+    padding: 15px 1px 5px ;
+    text-align: center;
+}
+td {
+    display: inline-block;
+    padding-right: 10px;
+    padding-bottom: 2px
+}
+td:after {
+    content: ',';
+}
+
+</style>
+
+<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script> -->
+<!-- <script src="/JS/jquery-3.4.1.js"integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="crossorigin="anonymous"></script> -->
+
+
+<script type="text/javascript" src='/static/jquery-3.4.1.js'></script>
+<script type="text/javascript" src='/static/bootstrap.min.js'></script>
+<script type="text/javascript" src='/static/popper.min.js'></script>
+<link rel="stylesheet" href="/static/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+
+
+<script>
+
+var currentSensorPort = ""
+
+
+jQuery(document).ready(function($){
+   
+    function getSensors(){
+        $.ajax({
+            url:"/usb_connections",
+                success: function(DictionaryOfSensors){
+                    $("#sensorTable").empty();              
+                    var table = document.createElement('table');
+                    var th = document.createElement('tr');   
+                    for (var key in DictionaryOfSensors) {
+                        var tr = document.createElement('tr');  
+                        var td1 = document.createElement('td');
+                        td1.style.paddingLeft = "25px";
+                        var x = document.createElement("INPUT");
+                        x.setAttribute("type", "radio");
+                        x.setAttribute("name", "sensor");
+                        tempList = DictionaryOfSensors[key]
+                        x.setAttribute("value", tempList[tempList.length - 1])
+                        x.setAttribute("onclick", "GetNewSensorID(value)")
+                        tr.appendChild(x);
+                        var tempText = ""
+                        for (i = 0; i <tempList.length; i++) {
+                            tempText += tempList[i];
+                        }
+                        var text1 = document.createTextNode(tempText)
+                        td1.appendChild(text1);  
+                        tr.appendChild(td1);
+                        table.appendChild(tr);
+                    }
+                    $("#sensorTable").append(table);
+                }
+        });
+    }
+
+    getSensors();
+});
+
+function GetNewSensorID(ID) {
+    ID = String(ID);
+    ID = ID.replace("/dev/","")
+    currentSensorPort = ID;
+    document.getElementById("AddMe").disabled = false; 
+    // DisplayBytes(currentSensorPort)
+}   
+
+// function DisplayBytes(port) {
+//     $("#MainTable").empty();    
+
+//     console.log("test")
+
+//     $.ajax({
+//         url:"/displaybytes"+port,
+//         success: function(DictionaryOfBytes){
+//             console.log("big boy test")
+//             $("#MainTable").append(DictionaryOfBytes);
+//         }       
+//     })    
+   
+// }
+
+
+function AddSensor() {
+    console.log(currentSensorPort)
+
+    var e = document.getElementById("listView");
+    var sensorName = e.options[e.selectedIndex].value;
+    var UN = document.getElementById("UN").value;
+
+    $.ajax({
+        url:"/createSensor/"+sensorName+"/"+currentSensorPort+"/"+UN,
+        success: function(DictionaryOfOutputData){
+            console.log("added");
+            alert("The sensor has been successfully added.");
+        },
+        error: function(data){
+            console.log(data)
+        }
+    });
+    // alert("The sensor has been successfully added.");
+}
+
+</script>
+</head>
+<body>
+    <div class="lowerMe">
+        <div class="centerMe">
+            <h2>Add a new sensor</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="lowerMe">
+                <div class="centerMe">
+                    100 bytes of data from the sensor
+                </div>
+                <div id="MainTable"></div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="centerMe">       
+                <div class="lowerMe">
+                    <div class="lowerMe">
+                        <button type="button" onclick="window.location.href='/'" class="btn btn-secondary">Return to status page</button>
+                        <div class="lowerMe">
+                            <div class="lowerMe">
+                                Sensor identification information
+                                <div id="sensorTable"></div>
+                                <div class="lowerMe">
+                                    Select the sensor you have attatched from the list below.
+                                    <div class="lowerMe">
+                                        <select id="listView">
+                                            <option value="BB3">BB3 sensor</option>
+                                            <option value="BB9">BB9 sensor</option>
+                                            <!-- <option value="BB">BB sensor</option> -->
+                                            <!-- <option value="NTU">NTU sensor</option> -->
+                                            <option value="GPS_ublox7">GPS</option>
+                                        </select>
+                                        <div class="lowerMe">
+                                                <button type="button" id="AddMe" disabled onclick="AddSensor()" class="btn btn-secondary">Add sensor</button>
+                                        </div>
+                                    </div>
+                                    Enter your unique sensor name for identification<br>
+                                    <input type="uniqueName" id="UN"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

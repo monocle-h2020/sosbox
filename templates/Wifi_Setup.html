@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+.centerMe { 
+    text-align: center;
+}
+
+.lowerMe {
+    margin-top: 40px;
+}
+
+.lowerMeALot {
+    margin-top: 200px;
+}
+
+</style>
+
+<script type="text/javascript" src='/static/jquery-3.4.1.js'></script>
+<script type="text/javascript" src='/static/bootstrap.min.js'></script>
+<script type="text/javascript" src='/static/popper.min.js'></script>
+<link rel="stylesheet" href="/static/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<script>
+jQuery(document).ready(function($){
+    getSensors();
+ 
+
+    function getSensors(){
+        $.ajax({
+            url:"/list_of_sensors",
+                success: function(DictionaryOfSensors){
+                    
+                }
+        });
+    }
+
+});
+
+function SubmitDetails() {
+    console.log("test 1");
+    $.ajax({
+        
+        url:"/Wifi_Data"+document.getElementById("WC").value+"/"+document.getElementById("WP").value,
+        success: function(){
+            console.log("Connection established.")
+            alert("Connection established.")
+        } 
+    })
+}
+
+
+
+</script>
+
+<title>{{ title }}</title>
+
+</head>
+<body>
+
+    <div class="lowerMe">
+        <div class="centerMe">
+        <h2>Page for setting up wifi and connection settings</h2>
+        </div>
+    </div>
+   
+    <div class="lowerMeALot"></div>
+        
+            <div class="centerMe">
+                Your Wifi connection: <br>
+                <input type="text" id="WC" name="Wifi"><br>
+                Your Wifi Password: <br>
+                <input type="text" id="WP" name="Password"><br>
+                <br>
+                <button onclick="SubmitDetails()">Submit details</button>
+            </div>
+      
+    </div>
+
+</body>
+</html> 

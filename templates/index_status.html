@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+.centerMe { 
+    text-align: center;
+}
+
+.lowerMe {
+    margin-top: 40px;
+}
+
+#sensorTable {
+    color: black;
+    font-size: 16px;
+    font-family: monospace;
+    font-weight: normal;
+}
+
+#MainTable {
+    color: black;
+    font-size: 16px;
+    font-family: monospace;
+    font-weight: normal;
+} 
+table {
+    display: block;   
+}
+tr {
+    display: block;
+    border: solid 2px lightgray;
+    margin-bottom: -2px;
+
+    padding: 15px 1px 5px ;
+    text-align: center;
+}
+td {
+    display: inline-block;
+    padding-right: 10px;
+    padding-bottom: 2px
+}
+td:after {
+    content: '';
+}
+
+</style>
+
+<script type="text/javascript" src='/static/jquery-3.4.1.js'></script>
+<script type="text/javascript" src='/static/bootstrap.min.js'></script>
+<script type="text/javascript" src='/static/popper.min.js'></script>
+<link rel="stylesheet" href="/static/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<script>
+jQuery(document).ready(function($){
+    getSensors();
+ 
+
+    function getSensors(){
+        $.ajax({
+            url:"/list_of_sensors",
+                success: function(DictionaryOfSensors){
+                    $("#sensorTable").empty();
+                 
+                    var table = document.createElement('table');
+                    var th = document.createElement('tr');   
+                    for (var key in DictionaryOfSensors) {
+                        var tr = document.createElement('tr');  
+                        var td1 = document.createElement('td');
+                        var text1 = document.createTextNode(DictionaryOfSensors[key]);
+                        td1.appendChild(text1);  
+                        tr.appendChild(td1);
+                        table.appendChild(tr);
+                        console.log(DictionaryOfSensors[key]);
+                    }
+                    $("#sensorTable").append(table);
+                }
+        });
+    }
+
+});
+
+function StartStopReading() {
+   
+          
+    $.ajax({
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify('1','stop'),
+        dataType: 'json',
+        url: '/',
+        success: function (e) {
+            console.log(e);
+        },
+        error: function(error) {
+        console.log(error);
+        }
+    });
+       
+}
+
+
+
+</script>
+
+<title>{{ title }}</title>
+
+</head>
+<body>
+
+    <div class="lowerMe">
+        <div class="centerMe">
+        <h2>Status page for sensors</h2>
+        </div>
+    </div>
+   
+
+    <div class="row">
+        <div class="col">
+                <div class="centerMe">       
+                    <div class="lowerMe">
+                        <div class="lowerMe">
+                            <div class="lowerMe">
+                                <div class="lowerMe">
+                                    Table of current sensors
+                                    <div id="sensorTable"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <div class="col">
+            <div class="centerMe">       
+                <div class="lowerMe">
+                    <div class="lowerMe">
+                        <button type="button" onclick="window.location.href='/add_sensor'" class="btn btn-secondary">Add a sensor</button>
+                        <div class="lowerMe">
+                            <button type="button" onclick="window.location.href='/sensorOutput'" class="btn btn-secondary">View output from sensors</button>
+                            <!-- <div class="lowerMe">
+                                <button type="button" onclick="window.location.href='/Wifi_Setup'" class="btn btn-secondary">Set up Wifi connections</button>      
+                                <div class="lowerMe">
+                                    <button type="button" onclick="StartStopReading()" class="btn btn-secondary">Start/stop reading data from sensors</button>      
+                                </div>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html> 

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+.centerMe { 
+    text-align: center;
+}
+.lowerMe {
+    margin-top: 40px;
+}
+
+/* #secondTable {
+    size: 40%;
+    max-width: 40% !important;
+} */
+
+#sensorTable {
+    color: black;
+    font-size: 16px;
+    font-family: monospace;
+    font-weight: normal;
+    /* size: 50%; */
+    /* max-width: 50% !important; */
+}
+#MainTable {
+    color: black;
+    font-size: 16px;
+    font-family: monospace;
+    font-weight: normal;
+} 
+table {
+    display: block;   
+    table-layout:fixed;
+}
+tr {
+    display: block;
+    border: solid 2px lightgray;
+    word-wrap: break-word;
+    margin-bottom: -2px;
+    padding: 15px 1px 5px ;
+    text-align: center;
+}
+td {
+    display: inline-block;
+    padding-right: 10px;
+    padding-bottom: 2px;
+    max-width: 100% !important;
+
+}
+td:after {
+    content: ',';
+}
+
+</style>
+
+<script type="text/javascript" src='/static/jquery-3.4.1.js'></script>
+<script type="text/javascript" src='/static/bootstrap.min.js'></script>
+<script type="text/javascript" src='/static/popper.min.js'></script>
+<link rel="stylesheet" href="/static/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<script>
+
+
+function sendRequest(ID){
+        // window.setInterval(function(){
+            $.ajax({
+                url:"/latest_sensor_data/"+ID,
+                success: function(DictionaryOfOutputData){
+                    console.log(DictionaryOfOutputData)
+                    $("#MainTable").empty();            
+                    var table = document.createElement('table');
+                    for (var key in DictionaryOfOutputData) {
+                        var tr = document.createElement('tr');   
+                        currentDic = DictionaryOfOutputData[key]
+                        console.log(currentDic[key]);
+                        for (var individualKey in currentDic) {
+                            var td1 = document.createElement('td');
+                            var text1 = document.createTextNode(currentDic[individualKey]);
+                            td1.appendChild(text1);  
+                            tr.appendChild(td1);
+                        }
+                        table.appendChild(tr);
+                    }
+                    $("#MainTable").append(table);
+                },
+                complete: function() {
+                console.log("complete") 
+                }
+            });
+        // }, 500);
+    };
+
+jQuery(document).ready(function($){
+    
+    function getSensors(){
+        $.ajax({
+            url:"/list_of_sensors",
+            success: function(DictionaryOfSensors){
+                $("#sensorTable").empty();              
+                var table = document.createElement('table');
+                var th = document.createElement('tr');   
+                for (var key in DictionaryOfSensors) {
+                    var tr = document.createElement('tr');  
+                    var td1 = document.createElement('td');
+                    td1.style.paddingLeft = "60px";
+                    var text1 = document.createTextNode(DictionaryOfSensors[key]);
+                    td1.appendChild(text1);  
+                    var x = document.createElement("INPUT");
+                    x.setAttribute("type", "radio");
+                    x.setAttribute("name", "sensor");
+                    x.setAttribute("value", key)
+                    x.setAttribute("onclick", "GetID(value)")
+                    tr.appendChild(x);
+                    tr.appendChild(td1);
+                    table.appendChild(tr);
+                    console.log(DictionaryOfSensors[key]);
+                }
+                $("#sensorTable").append(table);
+            }
+        });
+    }
+
+  
+    getSensors();
+});
+
+function GetID(ID) {
+    ID = ID.replace("(","")
+    ID = ID.replace(")","")
+    ID = ID.replace(",","")
+    ID = parseInt(ID)
+    sendRequest(ID);
+}
+
+</script>
+</head>
+<body>
+    
+    <div class="row">
+        <div class="col">
+            <div class="lowerMe">
+                <div class="centerMe">
+                    <h2>View the latest output from the sensors</h2>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="row"> 
+        <div class="col col-md-6 ">
+            <div class="lowerMe">
+                <div class="centerMe">
+                    Latest 10 outputs from the sensor
+                </div>
+                <div id="MainTable"></div>
+            </div>
+        </div>
+        <div class="col col-md-6 ">
+            <div class="lowerMe">
+                <div class="centerMe">
+                    <div class="lowerMe">
+                        <button type="button" onclick="window.location.href='/'" class="btn btn-secondary">Return to status
+                            page</button>
+                        <div class="lowerMe">
+                            <div class="lowerMe">
+                                Table of current sensors
+                                <div id="sensorTable"></div>
+                                <form id="RadioButons"></form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
